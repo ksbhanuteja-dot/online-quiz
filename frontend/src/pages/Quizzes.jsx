@@ -1,19 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import api from '../services/api';
 
 const Quizzes = () => {
   const navigate = useNavigate();
+  const [quizzes, setQuizzes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const quizzes = [
-    { id: 1, title: 'JavaScript Basics', description: 'Test your knowledge of JavaScript fundamentals.', questions: 10, duration: 15 },
-    { id: 2, title: 'React Advanced', description: 'Deep dive into React hooks and state management.', questions: 15, duration: 20 },
-    { id: 3, title: 'CSS Mastery', description: 'Master modern CSS techniques and layouts.', questions: 12, duration: 18 },
-  ];
+  useEffect(() => {
+    api.get('/quizzes/').then((res) => {
+      setQuizzes(res.data);
+      setLoading(false);
+    });
+  }, []);
 
   const handleStartQuiz = (id) => {
     navigate(`/quiz/${id}`);
   };
+
+  if (loading) return <Layout><div>Loading...</div></Layout>;
 
   return (
     <Layout>
@@ -27,8 +33,8 @@ const Quizzes = () => {
             <h3 className="text-xl font-bold text-gray-800 mb-2">{quiz.title}</h3>
             <p className="text-gray-600 mb-4">{quiz.description}</p>
             <div className="flex justify-between text-sm text-gray-500 mb-4">
-              <span>{quiz.questions} questions</span>
-              <span>{quiz.duration} min</span>
+              <span>{quiz.questions.length} questions</span>
+              <span>{quiz.timer} min</span>
             </div>
             <button
               onClick={() => handleStartQuiz(quiz.id)}

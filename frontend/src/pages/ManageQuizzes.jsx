@@ -1,27 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import api from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
 
 const ManageQuizzes = () => {
-  const quizzes = [
-    { id: 1, title: 'JavaScript Basics', questions: 10, duration: 15, created: '2023-10-01' },
-    { id: 2, title: 'React Advanced', questions: 15, duration: 20, created: '2023-10-05' },
-    { id: 3, title: 'CSS Mastery', questions: 12, duration: 18, created: '2023-10-10' },
-  ];
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const [quizzes, setQuizzes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user?.role === 'instructor') {
+      api.get('/quizzes/').then((res) => {
+        // Filter quizzes by instructor
+        const instructorQuizzes = res.data.filter(quiz => quiz.instructor_id === user.id);
+        setQuizzes(instructorQuizzes);
+        setLoading(false);
+      });
+    }
+  }, [user]);
 
   const handleEdit = (id) => {
-    console.log('Edit quiz', id);
-    // Navigate to edit page or open modal
+    navigate(`/edit-quiz/${id}`);
   };
 
-  const handleDelete = (id) => {
-    console.log('Delete quiz', id);
-    // Confirm and delete
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this quiz?')) {
+      try {
+        await api.delete(`/quizzes/${id}`);
+        setQuizzes(quizzes.filter(quiz => quiz.id !== id));
+        alert('Quiz deleted successfully');
+      } catch (error) {
+        alert('Error deleting quiz');
+      }
+    }
   };
 
   const handleViewAnalytics = (id) => {
-    console.log('View analytics for quiz', id);
-    // Navigate to analytics
+    navigate(`/analytics?quiz=${id}`);
   };
+
+  if (loading) return <Layout><div>Loading...</div></Layout>;
 
   return (
     <Layout>
@@ -41,9 +61,9 @@ const ManageQuizzes = () => {
             {quizzes.map((quiz) => (
               <tr key={quiz.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quiz.title}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quiz.questions}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quiz.duration} min</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quiz.created}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quiz.questions.length}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quiz.timer} min</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(quiz.created_at).toLocaleDateString()}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
                     onClick={() => handleEdit(quiz.id)}

@@ -1,19 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Layout from '../components/Layout';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import api from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
 
 const QuizHistory = () => {
-  const historyData = [
-    { title: 'JavaScript Basics', score: 85, date: '2023-10-01', time: '12:30' },
-    { title: 'React Advanced', score: 92, date: '2023-10-05', time: '14:15' },
-    { title: 'CSS Mastery', score: 78, date: '2023-10-10', time: '11:45' },
-    { title: 'JavaScript Basics', score: 88, date: '2023-10-15', time: '13:20' },
-  ];
+  const { user } = useContext(AuthContext);
+  const [historyData, setHistoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      api.get(`/students/${user.id}/results`).then((res) => {
+        setHistoryData(res.data);
+        setLoading(false);
+      });
+    }
+  }, [user]);
 
   const trendData = historyData.map((item, index) => ({
     attempt: index + 1,
     score: item.score
   }));
+
+  if (loading) return <Layout><div>Loading...</div></Layout>;
 
   return (
     <Layout>
@@ -32,7 +42,7 @@ const QuizHistory = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {historyData.map((item, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.title}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.quiz_title}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.score}%</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.date}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.time}</td>

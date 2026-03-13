@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Layout from '../components/Layout';
+import api from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
 
 const Leaderboard = () => {
-  const currentStudent = 'Alice Johnson'; // Assume logged-in student
+  const { user } = useContext(AuthContext);
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const leaderboardData = [
-    { name: 'Alice Johnson', score: 95, time: '12:30', rank: 1 },
-    { name: 'Bob Smith', score: 92, time: '13:15', rank: 2 },
-    { name: 'Charlie Brown', score: 88, time: '14:00', rank: 3 },
-    { name: 'Diana Prince', score: 85, time: '14:45', rank: 4 },
-    { name: 'Eve Wilson', score: 82, time: '15:20', rank: 5 },
-  ];
+  useEffect(() => {
+    api.get('/leaderboard/').then((res) => {
+      setLeaderboardData(res.data);
+      setLoading(false);
+    });
+  }, []);
 
   const getRankStyle = (rank) => {
     switch (rank) {
@@ -24,6 +27,8 @@ const Leaderboard = () => {
         return '';
     }
   };
+
+  if (loading) return <Layout><div>Loading...</div></Layout>;
 
   return (
     <Layout>
@@ -39,18 +44,18 @@ const Leaderboard = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {leaderboardData.map((item) => (
+            {leaderboardData.map((item, index) => (
               <tr
-                key={item.rank}
-                className={`${item.name === currentStudent ? 'bg-blue-50 border-l-4 border-blue-500' : ''} ${item.rank <= 3 ? 'bg-gradient-to-r from-blue-50 to-purple-50' : ''}`}
+                key={index}
+                className={`${item.name === user?.name ? 'bg-blue-50 border-l-4 border-blue-500' : ''} ${index + 1 <= 3 ? 'bg-gradient-to-r from-blue-50 to-purple-50' : ''}`}
               >
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRankStyle(item.rank)}`}>
-                    {item.rank}
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRankStyle(index + 1)}`}>
+                    {index + 1}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {item.name} {item.name === currentStudent && <span className="text-blue-500">(You)</span>}
+                  {item.name} {item.name === user?.name && <span className="text-blue-500">(You)</span>}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.score}%</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.time}</td>

@@ -1,13 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const Sidebar = () => {
-  const menuItems = [
+  const { user } = useAuth();
+
+  const instructorMenu = [
+    { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
+    { name: 'Create Quiz', path: '/create-quiz', icon: '➕' },
+    { name: 'Manage Quizzes', path: '/manage-quizzes', icon: '📝' },
+    { name: 'Analytics', path: '/analytics', icon: '📊' },
+    { name: 'Leaderboard', path: '/leaderboard', icon: '🏆' },
+  ];
+
+  const studentMenu = [
     { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
     { name: 'Available Quizzes', path: '/quizzes', icon: '📝' },
     { name: 'Quiz History', path: '/history', icon: '📚' },
     { name: 'Leaderboard', path: '/leaderboard', icon: '🏆' },
   ];
+
+  const menuItems = user?.role === 'instructor' ? instructorMenu : studentMenu;
 
   return (
     <aside className="w-64 bg-white shadow-lg h-full">
