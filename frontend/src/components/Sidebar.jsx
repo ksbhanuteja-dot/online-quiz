@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom';
 const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
-    { name: 'Create Quiz', path: '/create-quiz', icon: '➕' },
-    { name: 'Manage Quizzes', path: '/manage-quizzes', icon: '📝' },
-    { name: 'Analytics', path: '/analytics', icon: '📊' },
+    { name: 'Available Quizzes', path: '/quizzes', icon: '📝' },
+    { name: 'Quiz History', path: '/history', icon: '📚' },
     { name: 'Leaderboard', path: '/leaderboard', icon: '🏆' },
   ];
 

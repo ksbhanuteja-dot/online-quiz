@@ -2,6 +2,8 @@ import React from 'react';
 import Layout from '../components/Layout';
 
 const Leaderboard = () => {
+  const currentStudent = 'Alice Johnson'; // Assume logged-in student
+
   const leaderboardData = [
     { name: 'Alice Johnson', score: 95, time: '12:30', rank: 1 },
     { name: 'Bob Smith', score: 92, time: '13:15', rank: 2 },
@@ -38,13 +40,18 @@ const Leaderboard = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {leaderboardData.map((item) => (
-              <tr key={item.rank} className={item.rank <= 3 ? 'bg-gradient-to-r from-blue-50 to-purple-50' : ''}>
+              <tr
+                key={item.rank}
+                className={`${item.name === currentStudent ? 'bg-blue-50 border-l-4 border-blue-500' : ''} ${item.rank <= 3 ? 'bg-gradient-to-r from-blue-50 to-purple-50' : ''}`}
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRankStyle(item.rank)}`}>
                     {item.rank}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {item.name} {item.name === currentStudent && <span className="text-blue-500">(You)</span>}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.score}%</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.time}</td>
               </tr>
